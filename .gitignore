@@ -1,0 +1,86 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# Data files
+data/raw/**/*.csv
+data/raw/**/*.txt
+data/raw/**/*.xlsx
+data/processed/**/*.csv
+data/processed/**/*.pkl
+
+# Keep folder structure but ignore large files
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Model files
+results/models/**/*.h5
+results/models/**/*.pkl
+results/models/**/*.pt
+results/models/**/*.pth
+results/metrics/**/*.json
+results/plots/**/*.png
+results/plots/**/*.jpg
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Tensorboard
+runs/
+tensorboard/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Temporary files
+*.tmp
+tmp/
+temp/

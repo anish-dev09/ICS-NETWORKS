@@ -1,0 +1,175 @@
+# Main Configuration File for ICS Intrusion Detection System
+
+project:
+  name: "AI for Automated Intrusion Detection in ICS Networks"
+  version: "1.0.0"
+  author: "Your Name"
+  
+# Data Configuration
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  
+  # Dataset parameters
+  datasets:
+    swat:
+      train_file: "SWaT_Dataset_Normal_v1.csv"
+      test_file: "SWaT_Dataset_Attack_v0.csv"
+      sample_rate: 1  # seconds
+      
+    wadi:
+      train_file: "WADI_14days.csv"
+      test_file: "WADI_attackdata.csv"
+      sample_rate: 1
+      
+    hai:
+      train_file: "train.csv"
+      test_file: "test.csv"
+      sample_rate: 1
+  
+  # Train/Val/Test Split
+  split_ratio:
+    train: 0.7
+    val: 0.15
+    test: 0.15
+    
+# Feature Engineering
+features:
+  window_sizes: [10, 30, 60]  # seconds for sliding windows
+  
+  statistical_features:
+    - mean
+    - std
+    - min
+    - max
+    - median
+    - skewness
+    - kurtosis
+  
+  temporal_features:
+    - rate_of_change
+    - rolling_mean
+    - rolling_std
+    - ewm  # exponential weighted moving average
+  
+  correlation_features:
+    enabled: true
+    threshold: 0.8
+
+# Model Configuration
+models:
+  # Baseline Models
+  baseline:
+    zscore_threshold: 3.0
+    iqr_multiplier: 1.5
+    isolation_forest:
+      n_estimators: 100
+      contamination: 0.1
+      random_state: 42
+  
+  # Process-Level Models
+  process_level:
+    lstm:
+      units: [128, 64]
+      dropout: 0.2
+      learning_rate: 0.001
+      epochs: 50
+      batch_size: 64
+      
+    autoencoder:
+      encoder_dims: [64, 32, 16]
+      decoder_dims: [16, 32, 64]
+      learning_rate: 0.001
+      epochs: 50
+      batch_size: 128
+      reconstruction_threshold: 0.95  # percentile
+      
+    gru:
+      units: [128, 64]
+      dropout: 0.2
+      learning_rate: 0.001
+      epochs: 50
+      batch_size: 64
+  
+  # Network-Level Models
+  network_level:
+    random_forest:
+      n_estimators: 200
+      max_depth: 20
+      min_samples_split: 5
+      random_state: 42
+      
+    xgboost:
+      n_estimators: 200
+      learning_rate: 0.1
+      max_depth: 10
+      random_state: 42
+  
+  # Ensemble
+  ensemble:
+    method: "weighted_voting"  # options: weighted_voting, stacking, averaging
+    weights:
+      process_level: 0.6
+      network_level: 0.4
+
+# Training Configuration
+training:
+  random_seed: 42
+  early_stopping:
+    patience: 10
+    monitor: "val_loss"
+  
+  # Handle imbalanced data
+  balancing:
+    method: "smote"  # options: smote, undersample, oversample, none
+    sampling_strategy: 0.5
+
+# Detection Configuration
+detection:
+  threshold_tuning:
+    method: "f1_optimal"  # options: f1_optimal, precision_recall_tradeoff
+    target_fpr: 0.05  # target false positive rate
+  
+  alert_priority:
+    critical: 0.9  # confidence threshold
+    high: 0.75
+    medium: 0.6
+    low: 0.4
+  
+  # Attack types to detect
+  attack_types:
+    - "sensor_spoofing"
+    - "unauthorized_command"
+    - "dos_attack"
+    - "man_in_the_middle"
+    - "replay_attack"
+
+# Evaluation Metrics
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc
+    - confusion_matrix
+  
+  detection_delay:
+    enabled: true
+    unit: "seconds"
+
+# Real-time Demo
+demo:
+  update_interval: 1.0  # seconds
+  buffer_size: 300  # number of samples to keep
+  visualization:
+    plot_sensors: true
+    plot_alerts: true
+    show_explainability: true
+
+# Paths
+paths:
+  models: "results/models"
+  metrics: "results/metrics"
+  plots: "results/plots"
+  logs: "logs"
