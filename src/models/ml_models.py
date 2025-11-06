@@ -14,7 +14,7 @@ Date: November 6, 2025
 import numpy as np
 import pandas as pd
 import time
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional, Any, Union
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (accuracy_score, precision_score, recall_score, 
                             f1_score, roc_auc_score, confusion_matrix, 
@@ -26,9 +26,10 @@ warnings.filterwarnings('ignore')
 
 # Try to import XGBoost
 try:
-    import xgboost as xgb
+    import xgboost as xgb  # type: ignore
     XGBOOST_AVAILABLE = True
 except ImportError:
+    xgb = None  # type: ignore
     XGBOOST_AVAILABLE = False
     print("⚠️  XGBoost not installed. Install with: pip install xgboost")
 
@@ -52,9 +53,9 @@ class MLDetector:
             **kwargs: Additional parameters for the model
         """
         self.model_type = model_type
-        self.model = None
-        self.feature_importance = None
-        self.training_time = None
+        self.model: Optional[Union[RandomForestClassifier, Any]] = None
+        self.feature_importance: Optional[pd.DataFrame] = None
+        self.training_time: Optional[float] = None
         self.params = kwargs
         
         # Initialize the model
@@ -75,10 +76,10 @@ class MLDetector:
             print(f"✅ Random Forest initialized with {self.params.get('n_estimators', 200)} trees")
             
         elif self.model_type == 'xgboost':
-            if not XGBOOST_AVAILABLE:
+            if not XGBOOST_AVAILABLE or xgb is None:
                 raise ImportError("XGBoost is not installed!")
             
-            self.model = xgb.XGBClassifier(
+            self.model = xgb.XGBClassifier(  # type: ignore
                 n_estimators=self.params.get('n_estimators', 200),
                 learning_rate=self.params.get('learning_rate', 0.1),
                 max_depth=self.params.get('max_depth', 10),
@@ -109,15 +110,16 @@ class MLDetector:
         start_time = time.time()
         
         # Train the model
-        self.model.fit(X, y)
+        if self.model is not None:
+            self.model.fit(X, y)  # type: ignore
         
         self.training_time = time.time() - start_time
         
         # Extract feature importance
-        if hasattr(self.model, 'feature_importances_'):
+        if self.model is not None and hasattr(self.model, 'feature_importances_'):
             self.feature_importance = pd.DataFrame({
                 'feature': X.columns,
-                'importance': self.model.feature_importances_
+                'importance': self.model.feature_importances_  # type: ignore
             }).sort_values('importance', ascending=False)
         
         print(f"✅ Training completed in {self.training_time:.2f} seconds")

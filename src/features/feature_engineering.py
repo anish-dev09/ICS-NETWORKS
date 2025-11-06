@@ -37,7 +37,7 @@ class FeatureEngineer:
         """
         self.window_sizes = window_sizes
         self.feature_names = []
-        self.sensor_cols = None
+        self.sensor_cols: Optional[List[str]] = None
         
     def fit(self, X: pd.DataFrame, sensor_cols: Optional[List[str]] = None):
         """
@@ -110,7 +110,7 @@ class FeatureEngineer:
         result = pd.concat([result, interaction_features], axis=1)
         
         # Fill NaN values (caused by rolling windows and lags)
-        result = result.fillna(method='bfill').fillna(method='ffill').fillna(0)
+        result = result.bfill().ffill().fillna(0)
         
         print(f"✅ Created {result.shape[1]} features from {len(self.sensor_cols)} sensors")
         
@@ -198,6 +198,9 @@ class FeatureEngineer:
         
         # Use only a subset of key sensors for lag features (to avoid explosion)
         # Select first 5 sensors as representatives
+        if self.sensor_cols is None or len(self.sensor_cols) == 0:
+            return features
+            
         key_sensors = self.sensor_cols[:5]
         
         for lag in lags:
@@ -212,6 +215,9 @@ class FeatureEngineer:
         features = pd.DataFrame(index=X.index)
         
         # Select first 10 sensors for interactions (to avoid explosion)
+        if self.sensor_cols is None or len(self.sensor_cols) == 0:
+            return features
+            
         selected_sensors = self.sensor_cols[:10]
         
         # Pairwise differences
@@ -334,7 +340,7 @@ class FeatureSelector:
 def create_features_pipeline(X: pd.DataFrame, y: Optional[pd.Series] = None,
                             window_sizes: List[int] = [10, 30, 60],
                             include_original: bool = True,
-                            apply_selection: bool = True) -> Tuple[pd.DataFrame, FeatureEngineer, FeatureSelector]:
+                            apply_selection: bool = True) -> Tuple[pd.DataFrame, FeatureEngineer, Optional[FeatureSelector]]:
     """
     Complete feature engineering pipeline.
     

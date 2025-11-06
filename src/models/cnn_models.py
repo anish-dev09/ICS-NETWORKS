@@ -17,9 +17,9 @@ warnings.filterwarnings('ignore')
 
 # TensorFlow/Keras imports
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers, models, callbacks
-from tensorflow.keras.optimizers import Adam
+from tensorflow import keras  # type: ignore
+from tensorflow.keras import layers, models, callbacks  # type: ignore
+from tensorflow.keras.optimizers import Adam  # type: ignore
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     confusion_matrix, classification_report, roc_auc_score, roc_curve
@@ -63,8 +63,8 @@ class CNN1DDetector:
         self.dense_units = dense_units
         self.dropout_rate = dropout_rate
         self.learning_rate = learning_rate
-        self.model = None
-        self.history = None
+        self.model: Optional[keras.Model] = None
+        self.history: Optional[keras.callbacks.History] = None
         
     def build_model(self):
         """Build the 1D-CNN architecture."""
@@ -126,7 +126,8 @@ class CNN1DDetector:
             self.build_model()
         
         summary_list = []
-        self.model.summary(print_fn=lambda x: summary_list.append(x))
+        if self.model is not None:
+            self.model.summary(print_fn=lambda x: summary_list.append(x))
         return '\n'.join(summary_list)
     
     def train(
@@ -194,15 +195,16 @@ class CNN1DDetector:
         print(f"Class weights: {class_weight}")
         print(f"{'='*60}\n")
         
-        self.history = self.model.fit(
-            X_train, y_train,
-            validation_data=(X_val, y_val),
-            epochs=epochs,
-            batch_size=batch_size,
-            class_weight=class_weight,
-            callbacks=callback_list,
-            verbose=verbose
-        )
+        if self.model is not None:
+            self.history = self.model.fit(
+                X_train, y_train,
+                validation_data=(X_val, y_val),
+                epochs=epochs,
+                batch_size=batch_size,
+                class_weight=class_weight,
+                callbacks=callback_list,
+                verbose=verbose
+            )
         
         return self.history
     

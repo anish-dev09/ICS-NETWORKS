@@ -42,8 +42,8 @@ class SequenceGenerator:
         self.window_size = window_size
         self.step = step
         self.scale = scale
-        self.scaler = StandardScaler() if scale else None
-        self.sensor_cols = None
+        self.scaler: Optional[StandardScaler] = StandardScaler() if scale else None
+        self.sensor_cols: Optional[List[str]] = None
         
     def fit(self, df: pd.DataFrame, sensor_cols: Optional[List[str]] = None):
         """
@@ -62,7 +62,7 @@ class SequenceGenerator:
             self.sensor_cols = sensor_cols
             
         # Fit scaler
-        if self.scale:
+        if self.scale and self.scaler is not None:
             self.scaler.fit(df[self.sensor_cols])
             
         return self
@@ -71,7 +71,7 @@ class SequenceGenerator:
         self, 
         df: pd.DataFrame,
         label_col: str = 'attack'
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
         """
         Transform dataframe into sequences.
         
@@ -117,7 +117,7 @@ class SequenceGenerator:
         df: pd.DataFrame,
         sensor_cols: Optional[List[str]] = None,
         label_col: str = 'attack'
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
         """
         Fit and transform in one step.
         
@@ -257,16 +257,17 @@ if __name__ == "__main__":
     
     print(f"✓ Input shape: {dummy_data.shape}")
     print(f"✓ Output X shape: {X.shape}")
-    print(f"✓ Output y shape: {y.shape}")
-    print(f"✓ Attack ratio: {y.sum() / len(y):.2%}")
-    
-    # Test balancing
-    X_bal, y_bal = create_balanced_sequences(X, y)
-    print(f"\n✓ Balanced X shape: {X_bal.shape}")
-    print(f"✓ Balanced attack ratio: {y_bal.sum() / len(y_bal):.2%}")
-    
-    # Test splitting
-    X_train, y_train, X_val, y_val, X_test, y_test = split_sequences(X, y)
-    print(f"\n✓ Train: {X_train.shape}, Val: {X_val.shape}, Test: {X_test.shape}")
+    if y is not None:
+        print(f"✓ Output y shape: {y.shape}")
+        print(f"✓ Attack ratio: {y.sum() / len(y):.2%}")
+        
+        # Test balancing
+        X_bal, y_bal = create_balanced_sequences(X, y)
+        print(f"\n✓ Balanced X shape: {X_bal.shape}")
+        print(f"✓ Balanced attack ratio: {y_bal.sum() / len(y_bal):.2%}")
+        
+        # Test splitting
+        X_train, y_train, X_val, y_val, X_test, y_test = split_sequences(X, y)
+        print(f"\n✓ Train: {X_train.shape}, Val: {X_val.shape}, Test: {X_test.shape}")
     
     print("\n✅ SequenceGenerator test passed!")
