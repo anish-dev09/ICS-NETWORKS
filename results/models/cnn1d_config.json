@@ -1,0 +1,27 @@
+{
+  "model_type": "CNN1D",
+  "input_shape": [
+    60,
+    79
+  ],
+  "filters": [
+    64,
+    128,
+    256
+  ],
+  "dense_units": [
+    128,
+    64
+  ],
+  "dropout_rate": 0.5,
+  "learning_rate": 0.001,
+  "batch_size": 32,
+  "epochs_trained": 14,
+  "total_parameters": 179713,
+  "training_time_seconds": 5.376926898956299,
+  "test_accuracy": 0.9583333333333334,
+  "test_precision": 0.8333333333333334,
+  "test_recall": 1.0,
+  "test_f1_score": 0.9090909090909091,
+  "test_roc_auc": 0.9894736842105264
+}

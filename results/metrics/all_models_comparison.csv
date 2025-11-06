@@ -1,0 +1,5 @@
+Model,Type,Accuracy,Precision,Recall,F1-Score
+Random Forest,ML,1.0000,1.0000,1.0000,1.0000
+XGBoost,ML,1.0000,1.0000,1.0000,1.0000
+CNN (1D),Deep Learning,0.9583,0.8333,1.0000,0.9091
+Isolation Forest,Baseline,0.8277,0.1056,0.7204,0.1842
