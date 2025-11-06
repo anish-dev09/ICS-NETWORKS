@@ -1,0 +1,13 @@
+model,threshold_name,threshold,accuracy,precision,recall,f1_score
+Random Forest,Very Low,0.05,0.6556,0.10031347962382445,1.0,0.18233618233618235
+Random Forest,Low,0.1,0.955,0.460431654676259,1.0,0.6305418719211823
+Random Forest,Medium-Low,0.15,1.0,1.0,1.0,1.0
+Random Forest,Medium,0.2,1.0,1.0,1.0,1.0
+Random Forest,Medium-High,0.3,1.0,1.0,1.0,1.0
+Random Forest,Default,0.5,1.0,1.0,1.0,1.0
+XGBoost,Very Low,0.05,1.0,1.0,1.0,1.0
+XGBoost,Low,0.1,1.0,1.0,1.0,1.0
+XGBoost,Medium-Low,0.15,1.0,1.0,1.0,1.0
+XGBoost,Medium,0.2,1.0,1.0,1.0,1.0
+XGBoost,Medium-High,0.3,1.0,1.0,1.0,1.0
+XGBoost,Default,0.5,1.0,1.0,1.0,1.0
