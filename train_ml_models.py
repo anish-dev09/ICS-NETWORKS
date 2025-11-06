@@ -91,7 +91,11 @@ def main():
     
     print("\n🔧 Engineering features for test data...")
     X_test_engineered = engineer.transform(X_test_raw, include_original=True)
-    X_test_features = selector.transform(X_test_engineered)
+    
+    if selector is not None:
+        X_test_features = selector.transform(X_test_engineered)
+    else:
+        X_test_features = X_test_engineered
     
     print(f"✅ Test features ready: {X_test_features.shape}")
     
@@ -108,16 +112,16 @@ def main():
         print(f"   Attack samples: {(y_train==1).sum()}")
         print(f"   Ratio: {(y_train==1).sum()/(y_train==0).sum()*100:.2f}%")
         
-        smote = SMOTE(sampling_strategy=0.5, random_state=42)
-        X_train_balanced, y_train_balanced = smote.fit_resample(X_train_features, y_train)
+        smote = SMOTE(sampling_strategy=0.5, random_state=42)  # type: ignore
+        X_train_balanced, y_train_balanced = smote.fit_resample(X_train_features, y_train)  # type: ignore
         
         print(f"\n⚖️  After SMOTE:")
         print(f"   Normal samples: {(y_train_balanced==0).sum()}")
         print(f"   Attack samples: {(y_train_balanced==1).sum()}")
         print(f"   Ratio: {(y_train_balanced==1).sum()/(y_train_balanced==0).sum()*100:.2f}%")
         
-        X_train_final = X_train_balanced
-        y_train_final = y_train_balanced
+        X_train_final: pd.DataFrame = pd.DataFrame(X_train_balanced)
+        y_train_final: pd.Series = pd.Series(y_train_balanced)
     else:
         if n_attack_samples == 0:
             print("\n" + "="*80)
@@ -127,8 +131,8 @@ def main():
             print("   This is typical for ICS datasets - training on normal behavior only")
             print("   Using class_weight='balanced' in models to handle this")
         
-        X_train_final = X_train_features
-        y_train_final = y_train
+        X_train_final: pd.DataFrame = X_train_features
+        y_train_final: pd.Series = y_train
     
     # Train and Compare Models
     print("\n" + "="*80)

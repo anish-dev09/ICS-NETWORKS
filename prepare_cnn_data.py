@@ -113,8 +113,13 @@ def prepare_cnn_data(
     
     print(f"✓ Generated {len(X):,} sequences")
     print(f"  X shape: {X.shape} (samples, timesteps, sensors)")
-    print(f"  y shape: {y.shape}")
-    print(f"  Attack ratio: {y.mean():.2%}")
+    
+    if y is not None:
+        print(f"  y shape: {y.shape}")
+        print(f"  Attack ratio: {y.mean():.2%}")
+    else:
+        raise ValueError("Labels (y) not generated!")
+    
     print(f"  Time taken: {time.time() - start_time:.2f}s")
     
     # Save generator info
@@ -129,6 +134,9 @@ def prepare_cnn_data(
     print(f"{'='*70}")
     
     start_time = time.time()
+    
+    if y is None:
+        raise ValueError("Cannot balance sequences: labels are None!")
     
     print(f"\nBalancing to {balance_ratio:.0%} attack ratio...")
     X_balanced, y_balanced = create_balanced_sequences(
