@@ -41,16 +41,21 @@ class HAIDataLoader:
         Returns:
             pd.DataFrame: Training data
         """
-        file_path = self.data_dir / f'train{train_num}.csv.gz'
+        # Try compressed file first, then uncompressed
+        file_path_gz = self.data_dir / f'train{train_num}.csv.gz'
+        file_path_csv = self.data_dir / f'train{train_num}.csv'
         
-        if not file_path.exists():
-            raise FileNotFoundError(f"Training file not found: {file_path}")
-        
-        print(f"Loading HAI training data from: {file_path}")
-        
-        # Read compressed CSV
-        with gzip.open(file_path, 'rt') as f:
-            df = pd.read_csv(f, nrows=nrows)
+        if file_path_gz.exists():
+            print(f"Loading HAI training data from: {file_path_gz}")
+            # Read compressed CSV
+            with gzip.open(file_path_gz, 'rt') as f:
+                df = pd.read_csv(f, nrows=nrows)
+        elif file_path_csv.exists():
+            print(f"Loading HAI training data from: {file_path_csv}")
+            # Read uncompressed CSV
+            df = pd.read_csv(file_path_csv, nrows=nrows)
+        else:
+            raise FileNotFoundError(f"Training file not found: {file_path_gz} or {file_path_csv}")
         
         print(f"✅ Loaded {len(df)} samples with {len(df.columns)} columns")
         
@@ -67,16 +72,21 @@ class HAIDataLoader:
         Returns:
             pd.DataFrame: Test data with attacks
         """
-        file_path = self.data_dir / f'test{test_num}.csv.gz'
+        # Try compressed file first, then uncompressed
+        file_path_gz = self.data_dir / f'test{test_num}.csv.gz'
+        file_path_csv = self.data_dir / f'test{test_num}.csv'
         
-        if not file_path.exists():
-            raise FileNotFoundError(f"Test file not found: {file_path}")
-        
-        print(f"Loading HAI test data from: {file_path}")
-        
-        # Read compressed CSV
-        with gzip.open(file_path, 'rt') as f:
-            df = pd.read_csv(f, nrows=nrows)
+        if file_path_gz.exists():
+            print(f"Loading HAI test data from: {file_path_gz}")
+            # Read compressed CSV
+            with gzip.open(file_path_gz, 'rt') as f:
+                df = pd.read_csv(f, nrows=nrows)
+        elif file_path_csv.exists():
+            print(f"Loading HAI test data from: {file_path_csv}")
+            # Read uncompressed CSV
+            df = pd.read_csv(file_path_csv, nrows=nrows)
+        else:
+            raise FileNotFoundError(f"Test file not found: {file_path_gz} or {file_path_csv}")
         
         print(f"✅ Loaded {len(df)} samples with {len(df.columns)} columns")
         
