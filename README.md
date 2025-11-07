@@ -1,21 +1,32 @@
 # 🔐 AI for Automated Intrusion Detection in ICS Networks
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![TensorFlow 2.20](https://img.shields.io/badge/TensorFlow-2.20-orange.svg)](https://www.tensorflow.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: In Development](https://img.shields.io/badge/status-in%20development-orange.svg)]()
+[![Status: Active Development](https://img.shields.io/badge/status-active%20development-success.svg)]()
 
 ## 📋 Project Overview
 
-An AI-powered intrusion detection system for Industrial Control Systems (ICS) networks. This project implements advanced machine learning and deep learning techniques to detect various cyber-attacks on critical infrastructure systems like SCADA, water treatment plants, and power grids.
+An AI-powered intrusion detection system for Industrial Control Systems (ICS) networks using the **HAI (Hardware-in-the-Loop Augmented ICS) Dataset**. This project implements advanced machine learning and deep learning techniques including **1D-CNN, Random Forest, and XGBoost** to detect cyber-attacks on critical infrastructure systems.
 
-### 🎯 Key Features
+### 🎯 Current Achievement Highlights
 
-- **Multi-Level Detection**: Process-level + Network-level anomaly detection
-- **Advanced ML Models**: LSTM, Autoencoders, Random Forest, Isolation Forest
-- **Real-time Monitoring**: Live dashboard with Streamlit
-- **Explainable AI**: SHAP and LIME for interpretability
-- **Multiple Attack Detection**: Sensor spoofing, command injection, DoS, replay attacks
-- **Comprehensive Evaluation**: Precision, recall, F1-score, detection delay analysis
+- ✅ **1D-CNN Model**: 95.83% accuracy, 100% recall on HAI dataset
+- ✅ **Random Forest**: 98.51% accuracy with feature engineering
+- ✅ **XGBoost**: 98.96% accuracy, robust performance
+- ✅ **83 Sensor Features** from HAI-21.03 dataset
+- ✅ **Real-time Detection** with sequence-based analysis
+- ✅ **Production-Ready Code** with comprehensive error handling
+
+### 🏆 Key Features
+
+- **Deep Learning**: 1D-CNN with automatic feature learning (179K parameters)
+- **Traditional ML**: Random Forest + XGBoost with engineered features
+- **Baseline Methods**: Isolation Forest, Z-Score, IQR anomaly detection
+- **Feature Engineering**: Statistical, temporal, and correlation-based features
+- **Sequence Processing**: Time-series windowing for temporal patterns
+- **Model Comparison**: Comprehensive evaluation across all models
+- **Type-Safe Code**: Full type annotations and error handling
 
 ---
 
@@ -25,21 +36,25 @@ An AI-powered intrusion detection system for Industrial Control Systems (ICS) ne
 ICS-NETWORKS/
 │
 ├── data/                          # Datasets
-│   ├── raw/                       # Original datasets (SWaT, WADI, Gas Pipeline)
-│   └── processed/                 # Preprocessed data
+│   ├── raw/                       # HAI dataset (hai-21.03, hai-22.04)
+│   └── processed/                 # Preprocessed sequences for CNN
+│       └── cnn_sequences/         # Numpy arrays (X_train, y_train, etc.)
 │
 ├── src/                           # Source code
 │   ├── data/                      # Data loading and preprocessing
+│   │   ├── hai_loader.py         # ✅ HAI dataset loader
+│   │   └── sequence_generator.py # ✅ Sequence creation for CNN
 │   ├── features/                  # Feature engineering
+│   │   └── feature_engineering.py # ✅ Statistical & temporal features
 │   ├── models/                    # ML/DL models
-│   ├── detection/                 # Detection algorithms
+│   │   ├── baseline_detector.py  # ✅ Isolation Forest, Z-Score, IQR
+│   │   ├── cnn_models.py         # ✅ 1D-CNN architecture
+│   │   └── ml_models.py          # ✅ Random Forest, XGBoost
 │   └── utils/                     # Utility functions
+│       └── config_utils.py       # Configuration management
 │
-├── notebooks/                     # Jupyter notebooks for exploration
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_baseline_models.ipynb
-│   ├── 03_feature_engineering.ipynb
-│   └── 04_model_training.ipynb
+├── notebooks/                     # Jupyter notebooks
+│   └── 01_data_exploration.ipynb # ✅ HAI dataset exploration
 │
 ├── demo/                          # Live demo application
 │   ├── app.py                     # Streamlit dashboard
@@ -49,16 +64,29 @@ ICS-NETWORKS/
 │   └── config.yaml               # Main configuration
 │
 ├── results/                       # Model outputs
-│   ├── models/                    # Trained models
-│   ├── metrics/                   # Evaluation metrics
+│   ├── models/                    # ✅ Trained CNN model (179K params)
+│   │   ├── cnn1d_detector.keras
+│   │   └── cnn1d_detector_history.json
+│   ├── metrics/                   # ✅ Evaluation results
+│   │   ├── all_models_comparison.csv
+│   │   ├── baseline_results_hai.csv
+│   │   ├── cnn_results.csv
+│   │   ├── ml_models_comparison.csv
+│   │   └── ml_models_optimized.csv
 │   └── plots/                     # Visualizations
 │
-├── tests/                         # Unit tests
-│
 ├── docs/                          # Documentation
-│   ├── DATASET_GUIDE.md          # How to obtain datasets
-│   └── PROJECT_PLAN.md           # Detailed project plan
+│   ├── DATASET_GUIDE.md          # Dataset acquisition guide
+│   ├── PROJECT_PLAN.md           # Detailed project roadmap
+│   ├── PHASE3_COMPLETED.md       # ✅ HAI integration complete
+│   ├── PHASE5_COMPLETED.md       # ✅ ML models complete
+│   └── PHASE5.5_COMPLETED.md     # ✅ CNN integration complete
 │
+├── quick_test_baseline.py         # ✅ Baseline testing script
+├── train_ml_models.py             # ✅ ML training pipeline
+├── train_cnn_model.py             # ✅ CNN training pipeline
+├── prepare_cnn_data.py            # ✅ Sequence preparation
+├── compare_models.py              # ✅ Model comparison script
 ├── requirements.txt               # Python dependencies
 └── README.md                      # This file
 ```
@@ -88,74 +116,170 @@ source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Key packages installed:
+# - tensorflow==2.20.0 (Deep Learning)
+# - xgboost (Gradient Boosting)
+# - scikit-learn (ML algorithms)
+# - pandas, numpy (Data processing)
+# - imbalanced-learn (SMOTE)
+# - matplotlib, seaborn (Visualization)
 ```
 
-### 3. Get Datasets
-
-Follow the detailed guide in [`docs/DATASET_GUIDE.md`](docs/DATASET_GUIDE.md) to obtain ICS datasets.
-
-**Quick Start Options:**
-- **Option A**: Request SWaT dataset (academic, free, 24-48h approval)
-- **Option B**: Download Gas Pipeline dataset (public, immediate)
-- **Option C**: Use HAI dataset (public, GitHub)
-
-### 4. Run Demo Application
+### 3. Run Quick Tests
 
 ```bash
-cd demo
-streamlit run app.py
+# Test baseline models on HAI dataset
+python quick_test_baseline.py
+
+# Expected output: Baseline results with Isolation Forest achieving ~82% accuracy
 ```
 
-Visit `http://localhost:8501` to see the live dashboard.
+### 4. Train Models
+
+```bash
+# Train ML models (Random Forest, XGBoost)
+python train_ml_models.py
+
+# Prepare data for CNN
+python prepare_cnn_data.py
+
+# Train CNN model
+python train_cnn_model.py
+
+# Compare all models
+python compare_models.py
+```
+
+### 5. View Results
+
+```bash
+# Check results in results/ folder
+ls results/metrics/
+
+# Files created:
+# - baseline_results_hai.csv
+# - ml_models_comparison.csv
+# - cnn_results.csv
+# - all_models_comparison.csv
+```
 
 ---
 
-## 📊 Datasets
+## 📊 Dataset: HAI (Hardware-in-the-Loop Augmented ICS)
 
-This project uses real-world ICS datasets:
+This project uses the **HAI-21.03 dataset**, a comprehensive ICS security dataset from the Hardware-in-the-Loop testbed.
 
-| Dataset | Type | Size | Sensors | Attack Types | Status |
-|---------|------|------|---------|--------------|--------|
-| **SWaT** | Water Treatment | 1.5 GB | 51 | 36 attacks | Request Required |
-| **WADI** | Water Distribution | 2+ GB | 123 | 15 attacks | Request Required |
-| **Gas Pipeline** | SCADA | 500 MB | Multiple | Various | Public |
-| **HAI** | Multi-Process | 1 GB | 78 | 38 attacks | Public |
+### Dataset Specifications
 
-See [`docs/DATASET_GUIDE.md`](docs/DATASET_GUIDE.md) for download instructions.
+| Property | Value |
+|---------|-------|
+| **Name** | HAI (Hardware-in-the-Loop Augmented ICS Security) |
+| **Version** | HAI-21.03 |
+| **Source** | GitHub (icsdataset/hai) |
+| **Size** | 519 MB (compressed) |
+| **Sensors** | 83 (78 for CNN after preprocessing) |
+| **Processes** | 4 (Boiler, Reactor, Turbine, etc.) |
+| **Attack Types** | 38 different attack scenarios |
+| **Attack Ratio** | ~2.7% (real-world imbalanced data) |
+| **Format** | CSV (compressed .csv.gz) |
+| **Availability** | Public (Open Source) |
+
+### Process Distribution
+
+- **P1**: 38 sensors (Primary control systems)
+- **P2**: 22 sensors (Secondary systems)
+- **P3**: 7 sensors (Auxiliary systems)
+- **P4**: 12 sensors (Actuators & control)
+
+### Data Quality
+
+- ✅ No missing values
+- ✅ Well-structured timestamps
+- ✅ Labeled attack periods
+- ✅ Real sensor values from HIL testbed
+- ✅ Multiple attack types documented
+
+**Reference**: iTrust Centre for Research in Cyber Security, Singapore University of Technology and Design (SUTD)
 
 ---
 
-## 🧠 Machine Learning Pipeline
+## 🏆 Model Performance Results
 
-### Phase 1: Data Preprocessing
-- Missing value handling
-- Normalization & scaling
-- Time-window creation
-- Imbalanced data handling (SMOTE)
+### Current Best Results on HAI-21.03 Dataset
 
-### Phase 2: Feature Engineering
-- **Statistical Features**: mean, std, min, max, skewness, kurtosis
-- **Temporal Features**: rate of change, rolling statistics, EWMA
-- **Correlation Features**: sensor correlation analysis
-- **Domain-Specific**: physical constraint violations
+| Model | Accuracy | Precision | Recall | F1-Score | Parameters | Type |
+|-------|----------|-----------|--------|----------|------------|------|
+| **1D-CNN** | **95.83%** | 50.00% | **100%** | 66.67% | 179,457 | Deep Learning |
+| **XGBoost** | **98.96%** | **95.65%** | 91.67% | **93.62%** | N/A | Ensemble |
+| **Random Forest** | **98.51%** | 95.45% | 87.50% | 91.30% | 200 trees | Ensemble |
+| Isolation Forest | 82.77% | 6.04% | 51.52% | 10.86% | N/A | Baseline |
+| Z-Score | 59.37% | 2.78% | 55.15% | 5.30% | N/A | Baseline |
+| IQR Method | 50.98% | 2.50% | 95.45% | 4.88% | N/A | Baseline |
 
-### Phase 3: Model Development
+### Key Insights
 
-#### Process-Level Models:
-- **LSTM Networks**: Temporal pattern recognition
-- **Autoencoders**: Reconstruction-based anomaly detection
-- **GRU Networks**: Efficient sequence modeling
-- **Isolation Forest**: Baseline anomaly detection
+- ✅ **XGBoost** achieves best overall balance (93.62% F1-score)
+- ✅ **1D-CNN** achieves perfect recall (100% attack detection)
+- ✅ **Random Forest** strong performance with feature engineering
+- ✅ Deep learning excels at temporal pattern recognition
+- ✅ Traditional ML excels with engineered features
+- ⚠️ Baseline methods struggle with class imbalance
 
-#### Network-Level Models:
-- **Random Forest**: Traffic classification
-- **XGBoost**: Gradient boosting for patterns
-- **CNN**: Packet pattern recognition (advanced)
+### Training Configuration
 
-### Phase 4: Ensemble & Fusion
-- Weighted voting
-- Stacking
-- Multi-level fusion (process + network)
+**CNN Model:**
+- Architecture: 3x Conv1D layers (64, 128, 256 filters) + 2x Dense layers
+- Input: (60 timesteps × 78 sensors)
+- Training: 50 epochs with early stopping
+- Class weighting: 1:15.7 (normal:attack)
+- Optimizer: Adam (lr=0.001)
+
+**ML Models:**
+- Features: 300+ engineered features (statistical, temporal, correlation)
+- Training samples: 15,000 (3.2% attacks)
+- Test samples: 5,000 (3.84% attacks)
+- Balancing: SMOTE for Random Forest, class weights for XGBoost
+- Cross-validation: 5-fold
+
+---
+
+## 🧠 Machine Learning Pipeline (Implemented)
+
+### Phase 1: Data Preprocessing ✅
+- ✅ HAI dataset loading and exploration
+- ✅ Missing value handling (none required)
+- ✅ Normalization & StandardScaler
+- ✅ Time-window sequence creation
+- ✅ Class imbalance handling (SMOTE, class weights)
+
+### Phase 2: Feature Engineering ✅
+- ✅ **Statistical Features**: mean, std, min, max, skewness, kurtosis
+- ✅ **Temporal Features**: rolling windows (10, 30, 60), rate of change
+- ✅ **Lag Features**: 1, 5, 10 timestep lags
+- ✅ **Interaction Features**: sensor correlations and ratios
+- ✅ **Feature Selection**: Variance threshold + correlation filtering
+
+### Phase 3: Model Development ✅
+
+#### Deep Learning Models
+- ✅ **1D-CNN**: Convolutional neural network for sequence processing
+  - 3 Conv1D layers with max pooling
+  - Global max pooling + Dense layers
+  - 179K trainable parameters
+  - Automatic feature learning
+
+#### Traditional ML Models
+- ✅ **Random Forest**: 200 trees with balanced class weights
+- ✅ **XGBoost**: Gradient boosting with scale_pos_weight=10
+- ✅ **Baseline Methods**: Isolation Forest, Z-Score, IQR
+
+### Phase 4: Evaluation & Comparison ✅
+- ✅ Comprehensive metrics (accuracy, precision, recall, F1, ROC-AUC)
+- ✅ Confusion matrix analysis
+- ✅ Model comparison across all approaches
+- ✅ Feature importance analysis
+- ✅ Training time and inference speed measurement
 
 ---
 
@@ -196,112 +320,217 @@ See [`docs/DATASET_GUIDE.md`](docs/DATASET_GUIDE.md) for download instructions.
 
 ---
 
-## 🔬 Project Phases & Timeline
+## 🔬 Project Phases & Current Status
 
-### ✅ Phase 1: Plan & Setup (Week 1)
+### ✅ Phase 1: Plan & Setup (Completed)
 - [x] Project structure created
 - [x] Environment setup
-- [ ] Dataset acquisition
-- [ ] Literature review
+- [x] Dataset acquisition (HAI-21.03)
+- [x] Literature review
 
-### 🔄 Phase 2: Data & Baseline (Week 1-2)
-- [ ] Data exploration
-- [ ] Baseline models (Z-score, IQR, Isolation Forest)
-- [ ] Initial evaluation
+### ✅ Phase 2: Data & Baseline (Completed)
+- [x] Data exploration and analysis
+- [x] Baseline models (Z-score, IQR, Isolation Forest)
+- [x] Initial evaluation (82.77% best baseline accuracy)
+- [x] HAI dataset integration complete
 
-### 📋 Phase 3: Feature Engineering (Week 2)
-- [ ] Statistical features
-- [ ] Temporal features
-- [ ] Feature selection
+### ✅ Phase 3: Feature Engineering (Completed)
+- [x] Statistical features (mean, std, min, max, etc.)
+- [x] Temporal features (rolling windows, rate of change)
+- [x] Lag features and interaction features
+- [x] Feature selection pipeline
+- [x] 300+ engineered features created
 
-### 🤖 Phase 4: Model Development (Week 2-3)
-- [ ] LSTM implementation
-- [ ] Autoencoder implementation
-- [ ] Random Forest for network data
-- [ ] Hyperparameter tuning
+### ✅ Phase 4: Model Development (Completed)
+- [x] Random Forest implementation (98.51% accuracy)
+- [x] XGBoost implementation (98.96% accuracy)
+- [x] 1D-CNN implementation (95.83% accuracy, 100% recall)
+- [x] Hyperparameter tuning
+- [x] Model comparison and analysis
 
-### 🔗 Phase 5: Fusion & Explainability (Week 3)
-- [ ] Ensemble methods
-- [ ] SHAP/LIME integration
-- [ ] Alert prioritization
+### ✅ Phase 5: Advanced Models & Integration (Completed)
+- [x] Sequence generation for temporal models
+- [x] CNN architecture with 179K parameters
+- [x] SMOTE for class imbalance
+- [x] Comprehensive evaluation metrics
+- [x] Feature importance analysis
 
-### 🎥 Phase 6: Demo & Testbed (Week 3-4)
-- [ ] Enhanced Streamlit dashboard
-- [ ] Real-time detection
-- [ ] OpenPLC integration (optional)
+### 🔄 Phase 6: Demo & Deployment (In Progress)
+- [x] Basic Streamlit dashboard structure
+- [ ] Real-time detection interface
+- [ ] Model integration with dashboard
+- [ ] Live monitoring capabilities
+- [ ] Alert system
 
-### 📝 Phase 7: Evaluation & Report (Week 4+)
-- [ ] Comprehensive evaluation
-- [ ] Documentation
-- [ ] Final presentation
-- [ ] Project report
+### � Phase 7: Documentation & Final Report (Planned)
+- [x] Code documentation complete
+- [x] Technical documentation (Phases 3, 5, 5.5 completed)
+- [ ] Final project report
+- [ ] Presentation materials
+- [ ] Video demonstration
 
 ---
 
-## 🛠️ Technologies Used
+## 📈 Project Progress
 
-- **Languages**: Python 3.8+
-- **ML/DL**: TensorFlow, Keras, PyTorch, scikit-learn
+**Overall Completion**: ~75% ✅
+
+| Phase | Status | Completion |
+|-------|--------|------------|
+| Setup & Planning | ✅ Complete | 100% |
+| Data & Baseline | ✅ Complete | 100% |
+| Feature Engineering | ✅ Complete | 100% |
+| ML Model Development | ✅ Complete | 100% |
+| Deep Learning (CNN) | ✅ Complete | 100% |
+| Demo Application | 🔄 In Progress | 40% |
+| Documentation | 🔄 In Progress | 80% |
+| Final Report | 📋 Planned | 0% |
+
+---
+
+## 🛠️ Technologies & Tools Used
+
+### Core Technologies
+- **Language**: Python 3.8+
+- **Deep Learning**: TensorFlow 2.20.0, Keras
+- **Machine Learning**: scikit-learn, XGBoost
 - **Data Processing**: Pandas, NumPy, SciPy
-- **Visualization**: Matplotlib, Seaborn, Plotly
-- **Dashboard**: Streamlit
-- **Explainability**: SHAP, LIME
-- **Network Analysis**: Scapy, NetworkX
-- **Experiment Tracking**: MLflow (optional)
+- **Imbalanced Learning**: imbalanced-learn (SMOTE)
+
+### Visualization & Analysis
+- **Plotting**: Matplotlib, Seaborn
+- **Dashboard**: Streamlit (for demo)
+- **Jupyter**: Interactive notebooks for exploration
+
+### Development Tools
+- **Version Control**: Git, GitHub
+- **IDE**: VS Code
+- **Type Checking**: Python type hints throughout
+- **Package Management**: pip, requirements.txt
+
+### Model Architectures Implemented
+1. **1D-CNN**: Temporal convolutional neural network (179K parameters)
+2. **Random Forest**: Ensemble decision trees (200 estimators)
+3. **XGBoost**: Gradient boosting with scale position weight
+4. **Baseline Methods**: Isolation Forest, Z-Score, IQR
 
 ---
 
 ## 📚 Key References
 
-1. Goh et al. (2017) - "A Dataset to Support Research in the Design of Secure Water Treatment Systems" (SWaT)
-2. Ahmed et al. (2016) - "WADI: A Water Distribution Testbed for Research in Cyber-Physical Systems"
-3. Beaver et al. (2013) - "A Machine Learning Approach to ICS Network Intrusion Detection"
-4. Kravchik & Shabtai (2018) - "Detecting Cyber Attacks in Industrial Control Systems Using Convolutional Neural Networks"
+1. Shin et al. (2020) - "HAI 1.0: HIL-based Augmented ICS Security Dataset"
+2. Kravchik & Shabtai (2018) - "Detecting Cyber Attacks in Industrial Control Systems Using Convolutional Neural Networks"
+3. Goh et al. (2017) - "A Dataset to Support Research in the Design of Secure Water Treatment Systems" (SWaT)
+4. Beaver et al. (2013) - "A Machine Learning Approach to ICS Network Intrusion Detection"
+5. iTrust Centre for Research in Cyber Security, SUTD - HAI Dataset Documentation
 
 ---
 
 ## 🎓 Academic Context
 
 **Project Type**: BCA Final Year Project  
-**Objective**: Develop production-grade AI system for ICS security  
-**Timeline**: November 2025 - January 2026 (50% completion target: 2-3 weeks)  
-**Future Scope**: Expandable for research publications and industry applications
+**Institution**: [Your Institution]  
+**Objective**: Develop production-grade AI system for ICS intrusion detection  
+**Timeline**: November 2025 - January 2026  
+**Current Status**: 75% Complete - Core ML/DL models implemented and evaluated  
+**Future Scope**: Real-time deployment, explainability features, research publications
 
 ---
 
 ## 📝 Usage Examples
 
-### Training a Model
+### Training CNN Model
 
 ```python
-from src.models.lstm_detector import LSTMDetector
-from src.data.data_loader import load_swat_data
+from src.data.hai_loader import HAIDataLoader
+from src.data.sequence_generator import SequenceGenerator
+from src.models.cnn_models import CNN1DDetector
 
-# Load data
-X_train, y_train = load_swat_data('data/raw/swat/SWaT_Dataset_Normal_v1.csv')
+# Load HAI dataset
+loader = HAIDataLoader()
+train_df = loader.load_train_data(train_num=1, nrows=20000)
+test_df = loader.load_test_data(test_num=1, nrows=20000)
 
-# Initialize model
-detector = LSTMDetector(input_dim=51, hidden_units=[128, 64])
+# Create sequences
+generator = SequenceGenerator(window_size=60, step=10, scale=True)
+X_train, y_train = generator.fit_transform(train_df)
 
-# Train
-detector.fit(X_train, y_train, epochs=50)
+# Build and train CNN
+cnn = CNN1DDetector(input_shape=(60, 78))
+cnn.build_model()
+history = cnn.train(X_train, y_train, X_val, y_val, epochs=50)
 
 # Evaluate
-metrics = detector.evaluate(X_test, y_test)
-print(metrics)
+results = cnn.evaluate(X_test, y_test)
+cnn.print_metrics(results)
+
+# Save model
+cnn.save('results/models/cnn1d_detector.keras')
 ```
 
-### Running Detection
+### Training ML Models
 
 ```python
-from src.detection.realtime_detector import RealtimeDetector
+from src.data.hai_loader import HAIDataLoader
+from src.features.feature_engineering import create_features_pipeline
+from src.models.ml_models import MLDetector
 
-# Initialize detector
-detector = RealtimeDetector(model_path='results/models/lstm_best.h5')
+# Load and prepare data
+loader = HAIDataLoader()
+train_df = loader.load_test_data(test_num=1, nrows=15000)
+X_train = train_df[loader.get_sensor_columns(train_df)]
+y_train = train_df['attack']
 
-# Detect on new data
-predictions = detector.predict(new_data)
-alerts = detector.generate_alerts(predictions)
+# Feature engineering
+X_features, engineer, selector = create_features_pipeline(
+    X_train, y_train, 
+    window_sizes=[10, 30, 60],
+    apply_selection=True
+)
+
+# Train XGBoost
+xgb_detector = MLDetector(
+    model_type='xgboost',
+    n_estimators=200,
+    learning_rate=0.1,
+    max_depth=10
+)
+xgb_detector.fit(X_features, y_train)
+
+# Evaluate
+metrics = xgb_detector.evaluate(X_test_features, y_test)
+xgb_detector.print_metrics(metrics)
+
+# Get feature importance
+importance = xgb_detector.get_feature_importance(top_n=20)
+print(importance)
+```
+
+### Running Baseline Detection
+
+```python
+from src.models.baseline_detector import IsolationForestDetector
+from src.data.hai_loader import HAIDataLoader
+
+# Load data
+loader = HAIDataLoader()
+test_df = loader.load_test_data(test_num=1, nrows=20000)
+sensor_cols = loader.get_sensor_columns(test_df)
+
+X_test = test_df[sensor_cols]
+y_test = test_df['attack']
+
+# Train Isolation Forest
+detector = IsolationForestDetector(contamination=0.03)
+detector.fit(X_test)
+
+# Predict and evaluate
+y_pred = detector.predict(X_test)
+metrics = detector.evaluate(X_test, y_test)
+
+print(f"Accuracy: {metrics['accuracy']:.4f}")
+print(f"Precision: {metrics['precision']:.4f}")
+print(f"Recall: {metrics['recall']:.4f}")
 ```
 
 ---
@@ -348,19 +577,37 @@ For questions or collaboration:
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Roadmap & Future Work
 
+### Completed ✅
 - [x] Project setup and structure
-- [x] Dataset documentation
-- [ ] Baseline implementation (Week 1)
-- [ ] Deep learning models (Week 2-3)
-- [ ] Real-time demo (Week 3-4)
-- [ ] Final evaluation and report (Week 4+)
-- [ ] Future: Publish research paper
-- [ ] Future: Deploy as production system
+- [x] HAI dataset integration and exploration
+- [x] Baseline implementation (Isolation Forest, Z-Score, IQR)
+- [x] Feature engineering pipeline (300+ features)
+- [x] ML models (Random Forest, XGBoost)
+- [x] Deep learning (1D-CNN)
+- [x] Comprehensive evaluation and comparison
+- [x] Type-safe, production-ready code
+
+### In Progress 🔄
+- [ ] Real-time detection dashboard
+- [ ] Model deployment pipeline
+- [ ] Final project report and documentation
+
+### Future Enhancements 🚀
+- [ ] LSTM/GRU for advanced temporal modeling
+- [ ] Attention mechanisms for interpretability
+- [ ] Explainable AI (SHAP, LIME) integration
+- [ ] Ensemble methods (stacking, voting)
+- [ ] Real-time streaming detection
+- [ ] Edge deployment optimization
+- [ ] Research paper publication
+- [ ] Production system deployment
 
 ---
 
-**Status**: 🚧 In Active Development (Phase 1 Complete)
+**Status**: 🎯 **75% Complete** - Core ML/DL models fully implemented and evaluated
 
-**Last Updated**: November 5, 2025
+**Last Updated**: November 7, 2025
+
+**Next Milestone**: Real-time demo application and final project documentation
