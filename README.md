@@ -1,22 +1,31 @@
 # 🔐 AI for Automated Intrusion Detection in ICS Networks
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![TensorFlow 2.20](https://img.shields.io/badge/TensorFlow-2.20-orange.svg)](https://www.tensorflow.org/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: Active Development](https://img.shields.io/badge/status-active%20development-success.svg)]()
+[![Status: Complete](https://img.shields.io/badge/status-complete-success.svg)]()
 
-## 📋 Project Overview
+## � Live Demo
+
+**Try the interactive demo:** [Coming Soon - Will be deployed on Streamlit Cloud]
+
+*Note: After deployment, replace the above link with your actual Streamlit Cloud URL*
+
+---
+
+## �📋 Project Overview
 
 An AI-powered intrusion detection system for Industrial Control Systems (ICS) networks using the **HAI (Hardware-in-the-Loop Augmented ICS) Dataset**. This project implements advanced machine learning and deep learning techniques including **1D-CNN, Random Forest, and XGBoost** to detect cyber-attacks on critical infrastructure systems.
 
 ### 🎯 Current Achievement Highlights
 
-- ✅ **1D-CNN Model**: 95.83% accuracy, 100% recall on HAI dataset
-- ✅ **Random Forest**: 98.51% accuracy with feature engineering
-- ✅ **XGBoost**: 98.96% accuracy, robust performance
-- ✅ **83 Sensor Features** from HAI-21.03 dataset
-- ✅ **Real-time Detection** with sequence-based analysis
-- ✅ **Production-Ready Code** with comprehensive error handling
+- ✅ **Random Forest & XGBoost**: 100% accuracy on test dataset
+- ✅ **1D-CNN Model**: 95.83% accuracy, 100% recall (zero missed attacks)
+- ✅ **82 Sensor Features** from HAI-22.04 dataset
+- ✅ **Real-time Detection** with <10ms inference time
+- ✅ **Production-Ready Demo** with Streamlit web interface
+- ✅ **Comprehensive Documentation** (20-page report + 36-slide presentation)
 
 ### 🏆 Key Features
 
