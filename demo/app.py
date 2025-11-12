@@ -224,14 +224,14 @@ def create_gauge_chart(value: float, title: str) -> go.Figure:
     
     return fig
 
-# ===== SESSION STATE INITIALIZATION =====
-if 'detection_history' not in st.session_state:
-    st.session_state.detection_history = []
-if 'alert_threshold' not in st.session_state:
-    st.session_state.alert_threshold = 0.7
-
 # ===== MAIN APPLICATION =====
 def main():
+    # ===== SESSION STATE INITIALIZATION (Must be first in main()) =====
+    if 'detection_history' not in st.session_state:
+        st.session_state.detection_history = []
+    if 'alert_threshold' not in st.session_state:
+        st.session_state.alert_threshold = 0.7
+    
     # Header
     st.markdown('<p class="main-header">🛡️ ICS Intrusion Detection System</p>', unsafe_allow_html=True)
     st.markdown("**Real-time anomaly detection for Industrial Control Systems using Deep Learning & ML**")
