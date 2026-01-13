@@ -1,6 +1,7 @@
 """
 Baseline Anomaly Detectors for ICS Networks
 Includes simple statistical and ML-based methods for sanity checks.
+Now with protocol-aware detection for Modbus, DNP3, S7comm.
 """
 
 import numpy as np
@@ -11,22 +12,33 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import warnings
 warnings.filterwarnings('ignore')
 
+# Protocol support
+try:
+    from ..protocols.protocol_detector import ProtocolDetector
+    PROTOCOL_SUPPORT = True
+except ImportError:
+    PROTOCOL_SUPPORT = False
+    print("Warning: Protocol detection not available. Install protocol parsers for enhanced detection.")
+
 
 class BaselineDetector:
     """
     Base class for baseline anomaly detectors.
+    Now supports protocol-aware detection for ICS networks.
     """
     
-    def __init__(self, method='zscore', threshold=3.0):
+    def __init__(self, method='zscore', threshold=3.0, protocol_aware=False):
         """
         Initialize baseline detector.
         
         Args:
             method (str): Detection method ('zscore', 'iqr', 'isolation_forest')
             threshold (float): Threshold for anomaly detection
+            protocol_aware (bool): Enable protocol-level anomaly detection
         """
         self.method = method
         self.threshold = threshold
+        self.protocol_aware = protocol_aware and PROTOCOL_SUPPORT
         self.scaler = StandardScaler()
         self.fitted = False
         
@@ -39,6 +51,13 @@ class BaselineDetector:
         
         # For Isolation Forest
         self.model = None
+        
+        # Protocol detector
+        if self.protocol_aware:
+            self.protocol_detector = ProtocolDetector()
+            print("✓ Protocol-aware detection enabled (Modbus, DNP3, S7comm)")
+        else:
+            self.protocol_detector = None
     
     def fit(self, X, y=None):
         """
@@ -178,6 +197,76 @@ class BaselineDetector:
             scores = -self.model.decision_function(X_scaled)
         
         return predictions, scores
+    
+    def predict_with_protocol(self, packets):
+        """
+        Protocol-aware anomaly detection.
+        Combines statistical detection with protocol-level validation.
+        
+        Args:
+            packets (list): List of packet dicts with 'bytes', 'dest_port', 'src_port' keys
+        
+        Returns:
+            dict: Detection results with protocol-level insights
+        """
+        if not self.protocol_aware or self.protocol_detector is None:
+            raise ValueError("Protocol-aware detection not enabled. Set protocol_aware=True")
+        
+        results = {
+            'predictions': [],
+            'anomaly_scores': [],
+            'protocol_anomalies': [],
+            'protocols_detected': [],
+            'dangerous_operations': [],
+            'recommendations': []
+        }
+        
+        for packet in packets:
+            # Parse packet
+            parsed = self.protocol_detector.parse_packet(
+                packet.get('bytes', b''),
+                packet.get('dest_port'),
+                packet.get('src_port')
+            )
+            
+            # Protocol-level anomaly detection
+            protocol_result = self.protocol_detector.detect_anomalies(parsed)
+            
+            # Extract features for statistical detection
+            features = self.protocol_detector.extract_features(parsed)
+            features_2d = features.reshape(1, -1)
+            
+            # Statistical anomaly detection
+            stat_pred = self.predict(features_2d)[0]
+            stat_score = self.predict_with_scores(features_2d)[1][0]
+            
+            # Combine results (OR logic: anomaly if either method detects)
+            is_anomalous = bool(stat_pred) or protocol_result['is_anomalous']
+            
+            # Combined anomaly score (weighted average)
+            combined_score = 0.5 * stat_score + 0.5 * protocol_result['anomaly_score']
+            
+            results['predictions'].append(1 if is_anomalous else 0)
+            results['anomaly_scores'].append(combined_score)
+            results['protocol_anomalies'].append(protocol_result['detected_anomalies'])
+            results['protocols_detected'].append(parsed.get('protocol', 'unknown'))
+            results['dangerous_operations'].append(parsed.get('is_dangerous_operation', False))
+            results['recommendations'].append(protocol_result.get('recommendation', ''))
+        
+        # Convert to arrays
+        results['predictions'] = np.array(results['predictions'])
+        results['anomaly_scores'] = np.array(results['anomaly_scores'])
+        
+        # Summary statistics
+        results['summary'] = {
+            'total_packets': len(packets),
+            'anomalies_detected': np.sum(results['predictions']),
+            'anomaly_rate': np.mean(results['predictions']),
+            'protocols': self.protocol_detector.get_detection_stats(),
+            'dangerous_operations_count': sum(results['dangerous_operations'])
+        }
+        
+        return results
     
     def evaluate(self, X, y_true):
         """
