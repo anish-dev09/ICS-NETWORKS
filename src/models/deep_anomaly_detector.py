@@ -10,7 +10,7 @@ warnings.filterwarnings('ignore')
 try:
     import tensorflow as tf
     from tensorflow import keras
-    from tensorflow.keras import layers, models
+    from tensorflow.keras import layers, models  # type: ignore
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
