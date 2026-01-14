@@ -1,6 +1,7 @@
 """
 Multi-Layer Ensemble Detector for Zero-Day Attack Detection
 Combines statistical, ML, DL, and protocol validation for robust detection.
+Now supports encrypted traffic detection using metadata and flow analysis.
 """
 
 import numpy as np
@@ -24,6 +25,13 @@ except ImportError:
     PROTOCOL_AVAILABLE = False
     print("Warning: Protocol validators not available.")
 
+try:
+    from src.models.encrypted_traffic_detector import EncryptedTrafficDetector
+    ENCRYPTED_SUPPORT = True
+except ImportError:
+    ENCRYPTED_SUPPORT = False
+    print("Warning: Encrypted traffic detection not available.")
+
 
 class ZeroDayEnsembleDetector:
     """
@@ -32,7 +40,7 @@ class ZeroDayEnsembleDetector:
     """
     
     def __init__(self, input_dim, weights=None, enable_deep_learning=True, 
-                 enable_protocol_validation=True, sequence_length=10):
+                 enable_protocol_validation=True, sequence_length=10, encrypted_mode=False):
         """
         Initialize ensemble detector.
         
@@ -42,15 +50,26 @@ class ZeroDayEnsembleDetector:
             enable_deep_learning (bool): Enable deep learning models
             enable_protocol_validation (bool): Enable protocol validation
             sequence_length (int): Sequence length for LSTM
+            encrypted_mode (bool): Enable encrypted traffic detection mode
         """
         self.input_dim = input_dim
         self.sequence_length = sequence_length
         self.enable_dl = enable_deep_learning and DL_AVAILABLE
-        self.enable_protocol = enable_protocol_validation and PROTOCOL_AVAILABLE
+        self.enable_protocol = enable_protocol_validation and PROTOCOL_AVAILABLE and not encrypted_mode
+        self.encrypted_mode = encrypted_mode and ENCRYPTED_SUPPORT
         
         # Default weights for each detection layer
         if weights is None:
-            if self.enable_dl and self.enable_protocol:
+            if self.encrypted_mode:
+                # Encrypted traffic mode (no protocol inspection)
+                self.weights = {
+                    'statistical': 0.20,
+                    'isolation_forest': 0.20,
+                    'autoencoder': 0.30,
+                    'lstm': 0.30
+                }
+                print("[Ensemble] Encrypted traffic mode: Protocol validation disabled")
+            elif self.enable_dl and self.enable_protocol:
                 # All layers enabled
                 self.weights = {
                     'statistical': 0.15,
@@ -93,6 +112,13 @@ class ZeroDayEnsembleDetector:
         print(f"[Ensemble] Initializing detectors...")
         self.statistical_detector = BaselineDetector(method='zscore', threshold=3.0)
         self.isolation_detector = BaselineDetector(method='isolation_forest')
+        
+        # Encrypted traffic detector
+        if self.encrypted_mode:
+            self.encrypted_detector = EncryptedTrafficDetector()
+            print(f"[Ensemble] Encrypted traffic detection enabled")
+        else:
+            self.encrypted_detector = None
         
         if self.enable_dl:
             self.autoencoder = AutoencoderDetector(input_dim=input_dim, encoding_dim=min(32, input_dim//2))
