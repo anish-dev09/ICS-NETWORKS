@@ -396,7 +396,7 @@ def main():
                     # Gauge chart
                     st.plotly_chart(
                         create_gauge_chart(latest['probability'], "Anomaly Probability"),
-                        use_container_width=True
+                        width='stretch'
                     )
                     
                     # Model info
@@ -416,7 +416,7 @@ def main():
         if metrics_df is not None:
             # Display metrics table
             st.subheader("Performance Metrics")
-            st.dataframe(metrics_df, use_container_width=True)
+            st.dataframe(metrics_df, width='stretch')
             
             # Create comparison charts
             col1, col2 = st.columns(2)
@@ -433,7 +433,7 @@ def main():
                     color_continuous_scale='blues'
                 )
                 fig_acc.update_layout(showlegend=False)
-                st.plotly_chart(fig_acc, use_container_width=True)
+                st.plotly_chart(fig_acc, width='stretch')
             
             with col2:
                 # F1 Score comparison
@@ -447,7 +447,7 @@ def main():
                     color_continuous_scale='greens'
                 )
                 fig_f1.update_layout(showlegend=False)
-                st.plotly_chart(fig_f1, use_container_width=True)
+                st.plotly_chart(fig_f1, width='stretch')
             
             # Precision vs Recall
             st.subheader("Precision vs Recall Trade-off")
@@ -467,7 +467,7 @@ def main():
                 title='Precision vs Recall (size=F1 Score)',
                 hovermode='closest'
             )
-            st.plotly_chart(fig_pr, use_container_width=True)
+            st.plotly_chart(fig_pr, width='stretch')
         else:
             st.warning("No performance metrics available. Train models to generate metrics.")
     
@@ -502,7 +502,7 @@ def main():
                     title='Class Distribution',
                     color_discrete_sequence=['lightgreen', 'lightcoral']
                 )
-                st.plotly_chart(fig_dist, use_container_width=True)
+                st.plotly_chart(fig_dist, width='stretch')
             
             # Sensor correlation heatmap (sample)
             st.subheader("Sensor Correlation Analysis")
@@ -518,7 +518,7 @@ def main():
                 color_continuous_scale='RdBu_r',
                 aspect='auto'
             )
-            st.plotly_chart(fig_corr, use_container_width=True)
+            st.plotly_chart(fig_corr, width='stretch')
             
             # Time series visualization
             st.subheader("Sensor Time Series (Sample)")
@@ -537,7 +537,7 @@ def main():
                     title=f'Sensor Values Over Time (First {num_samples} samples)',
                     labels={'value': 'Sensor Value', 'variable': 'Sensor'}
                 )
-                st.plotly_chart(fig_ts, use_container_width=True)
+                st.plotly_chart(fig_ts, width='stretch')
         else:
             st.warning("No data available for analytics")
     
@@ -571,7 +571,7 @@ def main():
             display_df['actual'] = display_df['actual'].map({0: 'Normal', 1: 'Attack'})
             display_df['probability'] = display_df['probability'].round(4)
             
-            st.dataframe(display_df, use_container_width=True)
+            st.dataframe(display_df, width='stretch')
             
             # Probability distribution
             st.subheader("Probability Distribution")
@@ -589,7 +589,7 @@ def main():
                 line_color="red",
                 annotation_text="Alert Threshold"
             )
-            st.plotly_chart(fig_hist, use_container_width=True)
+            st.plotly_chart(fig_hist, width='stretch')
             
             # Clear history button
             if st.button("🗑️ Clear History"):
