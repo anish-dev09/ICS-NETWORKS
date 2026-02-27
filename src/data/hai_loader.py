@@ -102,9 +102,10 @@ class HAIDataLoader:
         Returns:
             list: List of sensor column names
         """
-        # HAI dataset structure: timestamp, attack, P1_*, P2_*, P3_*, P4_*
-        exclude_cols = ['timestamp', 'attack']
-        sensor_cols = [col for col in df.columns if col not in exclude_cols]
+        # HAI dataset structure: time/timestamp, attack, attack_P*, P1_*, P2_*, P3_*, P4_*
+        exclude_cols = {'timestamp', 'time', 'attack'}
+        sensor_cols = [col for col in df.columns 
+                       if col not in exclude_cols and not col.startswith('attack_')]
         
         return sensor_cols
     
@@ -148,7 +149,10 @@ class HAIDataLoader:
         """
         if 'attack' in df.columns:
             attacks = df['attack'].unique()
-            return [a for a in attacks if a != 'Normal']
+            if df['attack'].dtype == 'object':
+                return [a for a in attacks if a != 'Normal']
+            else:
+                return [a for a in attacks if a != 0]
         return []
     
     def get_dataset_info(self, df):
@@ -173,8 +177,12 @@ class HAIDataLoader:
         }
         
         if 'attack' in df.columns:
-            info['num_normal'] = (df['attack'] == 'Normal').sum()
-            info['num_attack'] = (df['attack'] != 'Normal').sum()
+            if df['attack'].dtype == 'object':
+                info['num_normal'] = (df['attack'] == 'Normal').sum()
+                info['num_attack'] = (df['attack'] != 'Normal').sum()
+            else:
+                info['num_normal'] = int((df['attack'] == 0).sum())
+                info['num_attack'] = int((df['attack'] != 0).sum())
             info['attack_ratio'] = info['num_attack'] / info['total_samples']
             info['attack_types'] = self.get_attack_types(df)
             info['num_attack_types'] = len(info['attack_types'])
@@ -197,7 +205,7 @@ class HAIDataLoader:
         Returns:
             pd.DataFrame: Data for specified process
         """
-        process_cols = [col for col in df.columns if col.startswith(f'{process}_') or col in ['timestamp', 'attack']]
+        process_cols = [col for col in df.columns if col.startswith(f'{process}_') or col in ['time', 'timestamp', 'attack']]
         return df[process_cols]
     
     def print_dataset_summary(self, info):

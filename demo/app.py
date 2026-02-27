@@ -23,7 +23,15 @@ warnings.filterwarnings('ignore')
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Import mock data generator (using mock data for demo)
+# Import HAI data loader
+try:
+    from src.data.hai_loader import HAIDataLoader
+    HAI_LOADER_AVAILABLE = True
+except ImportError as e:
+    print(f"HAI loader import error: {e}")
+    HAI_LOADER_AVAILABLE = False
+
+# Import mock data generator (fallback if real data unavailable)
 try:
     from demo.mock_hai_data import generate_mock_hai_data
     MOCK_DATA_AVAILABLE = True
@@ -133,24 +141,42 @@ def load_ml_models():
 
 @st.cache_data
 def load_test_data():
-    """Load mock HAI test dataset"""
+    """Load real HAI test dataset, fallback to mock data if unavailable"""
     try:
-        if not MOCK_DATA_AVAILABLE:
-            st.sidebar.error("❌ Mock data generator not available")
-            return None
+        # Try loading real HAI data first
+        if HAI_LOADER_AVAILABLE:
+            loader = HAIDataLoader(version='21.03')
+            hai_data_dir = loader.data_dir
+            test_file = hai_data_dir / 'test1.csv'
+            test_file_gz = hai_data_dir / 'test1.csv.gz'
             
-        # Generate mock HAI data
-        st.sidebar.info("🔄 Generating mock HAI data...")
-        df = generate_mock_hai_data(n_samples=50000, attack_ratio=0.3, random_state=42)
+            if test_file.exists() or test_file_gz.exists():
+                df = loader.load_test_data(test_num=1, nrows=20000)
+                
+                if df is not None and len(df) > 0:
+                    # Rename 'time' to 'timestamp' for consistency
+                    if 'time' in df.columns and 'timestamp' not in df.columns:
+                        df = df.rename(columns={'time': 'timestamp'})
+                    
+                    attack_count = int(df['attack'].sum()) if 'attack' in df.columns else 0
+                    st.sidebar.success(
+                        f"✅ Real HAI data loaded: {len(df):,} samples "
+                        f"({attack_count:,} attacks, {attack_count/len(df)*100:.1f}%)"
+                    )
+                    return df
         
-        if df is not None and len(df) > 0:
-            st.sidebar.success(f"✅ Generated {len(df):,} mock samples (HAI-style)")
-            return df
-        else:
-            st.sidebar.warning("⚠️ No data generated")
-            return None
+        # Fallback to mock data
+        if MOCK_DATA_AVAILABLE:
+            st.sidebar.warning("⚠️ Real HAI data not found, using mock data")
+            df = generate_mock_hai_data(n_samples=50000, attack_ratio=0.3, random_state=42)
+            if df is not None and len(df) > 0:
+                st.sidebar.success(f"✅ Generated {len(df):,} mock samples (HAI-style)")
+                return df
+        
+        st.sidebar.error("❌ No data source available")
+        return None
     except Exception as e:
-        st.sidebar.error(f"❌ Data generation error: {str(e)}")
+        st.sidebar.error(f"❌ Data loading error: {str(e)}")
         return None
 
 @st.cache_data
@@ -169,7 +195,7 @@ def load_performance_metrics():
 def predict_with_ml(model, data: pd.DataFrame, feature_cols: list) -> Tuple[int, float]:
     """Make prediction with ML model (XGBoost/Random Forest)"""
     try:
-        X = data[feature_cols].values.reshape(1, -1)
+        X = data[feature_cols].values.astype(np.float64).reshape(1, -1)
         prediction = model.predict(X)[0]
         probability = model.predict_proba(X)[0, 1] if hasattr(model, 'predict_proba') else 0.5
         return int(prediction), float(probability)
@@ -312,12 +338,14 @@ def main():
                 sample = test_data.iloc[sample_idx]
                 actual_label = sample.get('attack', 0)
                 
-                # Display sensor values
-                sensor_cols = [col for col in test_data.columns if col not in ['attack', 'timestamp']]
+                # Display sensor values (exclude non-sensor columns)
+                exclude_cols = {'attack', 'timestamp', 'time'}
+                sensor_cols = [col for col in test_data.columns 
+                               if col not in exclude_cols and not col.startswith('attack_')]
                 sensor_data = sample[sensor_cols]
                 
                 # Show sensor values in expandable section
-                with st.expander("📊 View Sensor Values (83 sensors)"):
+                with st.expander(f"📊 View Sensor Values ({len(sensor_cols)} sensors)"):
                     # Display in 4 columns
                     cols = st.columns(4)
                     for idx, (sensor, value) in enumerate(sensor_data.items()):
@@ -342,7 +370,9 @@ def main():
                             # For demo, we'll use a simplified approach
                             st.info("CNN requires sequential data. Using single sample approximation.")
                             # Create pseudo-sequence by repeating sample
-                            sequence = np.repeat(sensor_data.values.reshape(1, -1), 60, axis=0)
+                            # Cast to float32 to avoid object dtype from mixed int64/float64 columns
+                            sensor_values = sensor_data.values.astype(np.float32)
+                            sequence = np.repeat(sensor_values.reshape(1, -1), 60, axis=0)
                             sequence = sequence.reshape(1, 60, len(sensor_data))
                             prediction, probability = predict_with_cnn(cnn_model, sequence)
                         
@@ -396,7 +426,7 @@ def main():
                     # Gauge chart
                     st.plotly_chart(
                         create_gauge_chart(latest['probability'], "Anomaly Probability"),
-                        width='stretch'
+                        config={'displayModeBar': False}
                     )
                     
                     # Model info
@@ -433,7 +463,7 @@ def main():
                     color_continuous_scale='blues'
                 )
                 fig_acc.update_layout(showlegend=False)
-                st.plotly_chart(fig_acc, width='stretch')
+                st.plotly_chart(fig_acc, config={'displayModeBar': True})
             
             with col2:
                 # F1 Score comparison
@@ -447,7 +477,7 @@ def main():
                     color_continuous_scale='greens'
                 )
                 fig_f1.update_layout(showlegend=False)
-                st.plotly_chart(fig_f1, width='stretch')
+                st.plotly_chart(fig_f1, config={'displayModeBar': True})
             
             # Precision vs Recall
             st.subheader("Precision vs Recall Trade-off")
@@ -467,7 +497,7 @@ def main():
                 title='Precision vs Recall (size=F1 Score)',
                 hovermode='closest'
             )
-            st.plotly_chart(fig_pr, width='stretch')
+            st.plotly_chart(fig_pr, config={'displayModeBar': True})
         else:
             st.warning("No performance metrics available. Train models to generate metrics.")
     
@@ -502,11 +532,13 @@ def main():
                     title='Class Distribution',
                     color_discrete_sequence=['lightgreen', 'lightcoral']
                 )
-                st.plotly_chart(fig_dist, width='stretch')
+                st.plotly_chart(fig_dist, config={'displayModeBar': True})
             
             # Sensor correlation heatmap (sample)
             st.subheader("Sensor Correlation Analysis")
-            sensor_cols = [col for col in test_data.columns if col not in ['attack', 'timestamp']]
+            exclude_cols = {'attack', 'timestamp', 'time'}
+            sensor_cols = [col for col in test_data.columns 
+                           if col not in exclude_cols and not col.startswith('attack_')]
             
             # Sample first 20 sensors for visualization
             sample_sensors = sensor_cols[:20]
@@ -518,7 +550,7 @@ def main():
                 color_continuous_scale='RdBu_r',
                 aspect='auto'
             )
-            st.plotly_chart(fig_corr, width='stretch')
+            st.plotly_chart(fig_corr, config={'displayModeBar': True})
             
             # Time series visualization
             st.subheader("Sensor Time Series (Sample)")
@@ -537,7 +569,7 @@ def main():
                     title=f'Sensor Values Over Time (First {num_samples} samples)',
                     labels={'value': 'Sensor Value', 'variable': 'Sensor'}
                 )
-                st.plotly_chart(fig_ts, width='stretch')
+                st.plotly_chart(fig_ts, config={'displayModeBar': True})
         else:
             st.warning("No data available for analytics")
     
@@ -589,7 +621,7 @@ def main():
                 line_color="red",
                 annotation_text="Alert Threshold"
             )
-            st.plotly_chart(fig_hist, width='stretch')
+            st.plotly_chart(fig_hist, config={'displayModeBar': True})
             
             # Clear history button
             if st.button("🗑️ Clear History"):
